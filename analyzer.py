@@ -43,4 +43,4 @@ def executer_analyse():
 
 if __name__ == "__main__":
     executer_analyse()
-Version Python
+    
