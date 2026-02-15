@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+    char date[11];
+    char heure[9];
+    char ip[16];
+    int port;
+    char protocole[10];
+    char statut[10];
+} Log;
+
+void analyser_logs() {
+    FILE *f = fopen("network_log.txt", "r");
+    if (!f) { printf("Erreur ouverture fichier\n"); return; }
+
+    Log *logs = NULL;
+    int n = 0, suc = 0, ech = 0;
+    char ligne[150];
+
+    while (fgets(ligne, sizeof(ligne), f)) {
+        logs = realloc(logs, (n + 1) * sizeof(Log));
+        
+        char *token = strtok(ligne, ";"); // Date
+        strcpy(logs[n].date, token);
+        token = strtok(NULL, ";");       // Heure
+        strcpy(logs[n].heure, token);
+        token = strtok(NULL, ";");       // IP
+        strcpy(logs[n].ip, token);
+        token = strtok(NULL, ";");       // Port
+        logs[n].port = atoi(token);
+        token = strtok(NULL, ";");       // Proto
+        strcpy(logs[n].protocole, token);
+        token = strtok(NULL, ";");       // Statut
+        token[strcspn(token, "\r\n")] = 0;
+        strcpy(logs[n].statut, token);
+
+        if (strcmp(logs[n].statut, "SUCCES") == 0) suc++; else ech++;
+        n++;
+    }
+
+    printf("--- STATS C ---\nTotal: %d\nSucces: %d\nEchecs: %d\n", n, suc, ech);
+
+    FILE *rep = fopen("rapport_analyse.txt", "w");
+    fprintf(rep, "RAPPORT D'ANALYSE (C)\nTotal: %d\nSucces: %d\nEchecs: %d\n", n, suc, ech);
+    fclose(rep);
+
+    free(logs);
+    fclose(f);
+}
+int main() {
+    analyser_logs();
+    return 0;
+}
+Version C.
